@@ -1,0 +1,13 @@
+{
+  "name": "Bebidas Exemplo - Cardápio Digital",
+  "short_name": "Cardápio Bebidas",
+  "description": "Cardápio digital para pedidos de bebidas",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#d90429",
+  "lang": "pt-BR",
+  "icons": []
+}
