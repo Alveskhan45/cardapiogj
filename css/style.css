@@ -574,19 +574,6 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
 .topbar .icon-btn.top{width:34px;height:34px;background:rgba(255,255,255,.1);border-color:transparent;color:#fff;font-size:.95rem}
 .topbar .icon-btn.top:hover{background:rgba(255,255,255,.22)}
 
-/* --- Botão de favoritos --- */
-#btnFav.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-#btnFav.active .badge-count{background:#fff;color:var(--primary)}
-.item:has(.fav-toggle) .item-body{padding-right:30px}
-.item:not(.thumbing) .item-body{padding-right:30px}
-
-/* --- Heart nos cards --- */
-.fav-toggle{position:absolute;top:10px;right:10px;z-index:3;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.14);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .18s;padding:0}
-.fav-toggle:hover{transform:scale(1.12)}
-.fav-toggle.on{background:var(--primary)}
-.fav-toggle.on::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 4px rgba(217,4,41,.25)}
-.item.thumbing .fav-toggle{top:6px;right:6px}
-
 /* --- Meus Pedidos --- */
 .my-order{border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:var(--card);animation:popIn .25s ease}
 .my-order .mo-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px}

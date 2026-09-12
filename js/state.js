@@ -374,20 +374,6 @@ function applyThemePreset(pid) {
   applyTheme();
 }
 
-/* ==================== FAVORITOS (no aparelho) ==================== */
-const FAV_KEY = KEY + '_favs';
-function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch(e) { return []; } }
-function saveFavs(f) { try { localStorage.setItem(FAV_KEY, JSON.stringify(f)); } catch(e) {} }
-function toggleFav(id) {
-  const f = getFavs();
-  const i = f.indexOf(id);
-  if (i >= 0) f.splice(i, 1); else f.push(id);
-  saveFavs(f);
-  updateFavUI();
-  return f.includes(id);
-}
-function isFav(id) { return getFavs().includes(id); }
-
 /* ==================== MEUS PEDIDOS (no aparelho) ==================== */
 const MY_ORDERS_KEY = KEY + '_my_orders';
 function getMyOrders() { try { return JSON.parse(localStorage.getItem(MY_ORDERS_KEY) || '[]'); } catch(e) { return []; } }

@@ -1,66 +1,46 @@
 /* ==================== MENU (vertical c/ submenu + busca inteligente) ==================== */
 let openCategory = null;
-let favOnly = false;
 
 /**
- * Verifica se um produto bate com o termo de busca
+ * Remove acentos/tom e deixa minúsculo (busca sem depender de acentuação)
+ */
+function norm(s) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+/**
+ * Verifica se um produto bate com o termo de busca (ignora acentos e sinais)
  */
 function productMatches(p, q) {
   if (!p.active) return false;
   if (!q) return true;
-  return p.name.toLowerCase().includes(q) ||
-         (p.desc || '').toLowerCase().includes(q);
+  const h = norm(q);
+  return norm(p.name).includes(h) ||
+         norm(p.desc).includes(h) ||
+         norm(p.category).includes(h);
 }
 
 /**
- * Destaca o termo buscado no texto
+ * Destaca o termo buscado no texto (compara ignorando acentos)
  */
 function highlight(text, q) {
   if (!q || !text) return text || '';
-  const safe = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return text.replace(new RegExp(`(${safe})`, 'gi'), '<mark class="hl">$1</mark>');
-}
-
-/* Preço efetivo (promoção) e quantidade vendida p/ ordenação */
-function priceNow(p) { return p.promo && p.promoPrice ? p.promoPrice : p.price; }
-
-/* Ranking de categorias com base no tamanho (p/ chips ordenados) */
-function chipsOrder(cats) {
-  const size = c => state.products.filter(p => p.active && p.category === c).length;
-  return [...cats].sort((a, b) => size(b) - size(a));
-}
-
-function renderChips(cats) {
-  const wrap = $('catChips');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  chipsOrder(cats).forEach(cat => {
-    const b = document.createElement('button');
-    b.className = 'chip' + (cat === openCategory ? ' active' : '');
-    b.innerHTML = `<span class="c-emoji">${categoryEmoji(cat)}</span>${cat}`;
-    b.onclick = () => {
-      openCategory = (openCategory === cat) ? null : cat;
-      const si = $('searchInput'); if (si) si.value = '';
-      renderCats();
-      if (openCategory) {
-        const tb = [...$('catNav').querySelectorAll('.cat-toggle')].find(x => x.dataset.cat === openCategory);
-        if (tb) setTimeout(() => tb.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
-      }
-    };
-    wrap.appendChild(b);
-  });
-}
-
-function updateFavUI() {
-  const b = $('btnFav');
-  if (b) b.classList.toggle('active', favOnly);
-  const fc = $('favCount');
-  if (fc) {
-    const n = getFavs().length;
-    fc.textContent = n;
-    fc.classList.toggle('hidden', !n);
+  const nq = norm(q);
+  if (!nq) return text;
+  let plain = '', off = [];
+  for (let oi = 0; oi < text.length; oi++) {
+    const clean = String(text[oi]).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (clean) { plain += clean; off.push(oi); }
   }
+  const i = plain.indexOf(nq);
+  if (i === -1) return text;
+  const start = off[i];
+  const end = off[i + nq.length - 1] + 1;
+  return text.slice(0, start) + '<mark class="hl">' + text.slice(start, end) + '</mark>' + text.slice(end);
 }
+
+/* Preço efetivo (promoção) */
+function priceNow(p) { return p.promo && p.promoPrice ? p.promoPrice : p.price; }
 
 function renderCats() {
   const catNav = $('catNav');
@@ -69,30 +49,14 @@ function renderCats() {
 
   const q = ($('searchInput')?.value || '').trim().toLowerCase();
   const searching = q.length > 0;
-  const sortMode = ($('sortSelect')?.value) || 'menu';
 
-  // Quantidade vendida por produto (para ordenar por "mais vendidos")
-  const sold = {};
-  state.orders.forEach(o => (o.items || []).forEach(i => sold[i.name] = (sold[i.name] || 0) + (i.qty || 0)));
-
-  // Pool de produtos visíveis (busca + favoritos)
+  // Pool de produtos visíveis (busca)
   const pool = state.products.filter(p =>
     p.active &&
-    (!searching || productMatches(p, q)) &&
-    !(favOnly && !isFav(p.id))
+    (!searching || productMatches(p, q))
   );
 
   const cats = [...new Set(pool.map(p => p.category).filter(Boolean))];
-
-  // Sem favoritos no modo só-favoritos
-  if (favOnly && cats.length === 0 && !searching) {
-    const div = document.createElement('div');
-    div.className = 'search-empty';
-    div.innerHTML = '🤍 <b>Nenhum favorito ainda.</b><br><small style="font-size:.8rem">Toque no coração de uma bebida para salvá-la aqui</small>';
-    catNav.appendChild(div);
-    renderChips([]);
-    return;
-  }
 
   // Busca sem resultado
   if (searching && cats.length === 0) {
@@ -100,22 +64,13 @@ function renderCats() {
     div.className = 'search-empty';
     div.innerHTML = `😕 Nenhuma bebida encontrada para "<b>${q}</b>"<br><small style="font-size:.8rem">Tente outro termo</small>`;
     catNav.appendChild(div);
-    renderChips([]);
     return;
   }
-
-  renderChips(cats);
 
   const frag = document.createDocumentFragment();
 
   cats.forEach(cat => {
     let items = pool.filter(p => p.category === cat);
-
-    // Ordenação
-    if (sortMode === 'top')      items.sort((a, b) => (sold[b.name] || 0) - (sold[a.name] || 0));
-    else if (sortMode === 'low') items.sort((a, b) => priceNow(a) - priceNow(b));
-    else if (sortMode === 'high')items.sort((a, b) => priceNow(b) - priceNow(a));
-    else if (sortMode === 'az')  items.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
     if (items.length === 0) return;
 
@@ -183,17 +138,6 @@ function renderCats() {
       if (p && (p.variations && p.variations.length)) { openItemDetail(id); el.disabled = false; return; }
       addToCart(id, 1);
       el.disabled = false;
-    };
-  });
-  // Liga favoritos (coração no card)
-  catNav.querySelectorAll('[data-fav]').forEach(el => {
-    el.onclick = (e) => {
-      e.stopPropagation();
-      toggleFav(el.dataset.fav);
-      const now = isFav(el.dataset.fav);
-      el.classList.toggle('on', now);
-      el.textContent = now ? '♥' : '🤍';
-      if (favOnly) renderCats(); // esconde o item desfavoritado
     };
   });
 }
@@ -270,11 +214,9 @@ function renderItem(p, q = '') {
   const quickBtn = canQuick && !out
     ? `<button class="quick-add" data-qadd="${p.id}" title="Adicionar ao carrinho">+</button>`
     : (hasVar ? `<button class="quick-add orange" data-qadd="${p.id}" title="Escolher opções">＋</button>` : '');
-  const heartBtn = out ? '' : `<button class="fav-toggle ${isFav(p.id) ? 'on' : ''}" data-fav="${p.id}" aria-label="Favoritar">${isFav(p.id) ? '♥' : '🤍'}</button>`;
   return `
     <div class="item ${out ? 'out' : ''}" data-open="${p.id}" tabindex="0">
       <div class="item-thumb" style="background:${thumbBg(p.category)}">${imgContent}${flag}</div>
-      ${heartBtn}
       <div class="item-body">
         <div class="item-name">${highlight(p.name, q)}${out ? ' <span style="color:#6b7280;font-size:.75rem">(esgotado)</span>' : ''}</div>
         <div class="item-desc">${highlight(p.desc || '', q)}</div>

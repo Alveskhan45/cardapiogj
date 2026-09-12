@@ -246,17 +246,6 @@ function bindExtras() {
   const btnPrint = $('btnPrint');
   if (btnPrint) btnPrint.onclick = printMenu;
 
-  const btnFav = $('btnFav');
-  if (btnFav) btnFav.onclick = () => {
-    favOnly = !favOnly;
-    updateFavUI();
-    renderCats();
-    const si = $('searchInput'); if (si) si.value = '';
-  };
-
-  const sortSel = $('sortSelect');
-  if (sortSel) sortSel.onchange = () => renderCats();
-
   const fo = $('footerOrders');
   if (fo) fo.onclick = e => { e.preventDefault(); openMyOrders(); };
 }
@@ -273,7 +262,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await load();
   applyTheme();
   setTheme(currentTheme());
-  updateFavUI();
 
   $('viewAdmin')?.classList.remove('active');
   $('viewMenu')?.classList.remove('hidden');

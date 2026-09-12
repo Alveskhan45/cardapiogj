@@ -56,21 +56,12 @@
 <!-- ==================== HEADER STICKY ==================== -->
 <header class="sticky" id="stickyHeader">
   <input type="text" id="searchInput" placeholder="🔎 O que você procura?">
-  <select id="sortSelect" class="sort-select" title="Ordenar produtos">
-    <option value="menu">Ordem do cardápio</option>
-    <option value="top">⭐ Mais vendidos</option>
-    <option value="low">Preço (menor)</option>
-    <option value="high">Preço (maior)</option>
-    <option value="az">A-Z</option>
-  </select>
-  <button class="icon-btn" id="btnFav" title="Mostrar favoritos apenas">🤍<span class="badge-count hidden" id="favCount">0</span></button>
   <button class="icon-btn" id="btnAdmin" title="Painel">⚙️</button>
   <button class="icon-btn" id="btnOpenCart" title="Carrinho">🛒<span class="badge-count hidden" id="cartCount">0</span></button>
 </header>
 
 <!-- ==================== VIEW CARDÁPIO ==================== -->
 <main class="menu-view" id="viewMenu">
-  <nav class="cat-chips" id="catChips" aria-label="Categorias"></nav>
   <div id="bannerArea"></div>
   <nav class="cat-menu" id="catNav"></nav>
 </main>
