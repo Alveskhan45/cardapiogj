@@ -285,7 +285,10 @@ async function load() {
 
   const online = await pullPublic();
 
-  if (!online && (!state.products || !state.products.length)) seed();
+  if (!online) {
+    if (!state.products || !state.products.length) seed();
+    else mergeSeed();
+  }
 
   if (!state.categories || !state.categories.length) {
     state.categories = [...new Set(state.products.map(p=>p.category).filter(Boolean))];
@@ -301,40 +304,99 @@ async function load() {
   state.config.blockWhenClosed = !!state.config.blockWhenClosed;
 }
 
-function seed() {
-  state.products = [
+const SEED_PRODUCTS = [
     { id:uid(), name:'Coca-Cola', desc:'Refrigerante gelado', price:6.00, promoPrice:null, cost:2.5, category:'Refrigerantes', stock:40, image:'🥤', highlight:true, promo:false, active:true,
       variations:[{name:'Lata 350ml',price:0},{name:'PET 600ml',price:2},{name:'2 Litros',price:6}],
       extras:[{name:'Copo com gelo',price:1},{name:'Limão extra',price:0.5}] },
     { id:uid(), name:'Guaraná Antarctica', desc:'Garrafa família', price:12.00, promoPrice:9.90, cost:6, category:'Refrigerantes', stock:25, image:'🥤', highlight:false, promo:true, active:true,
       variations:[{name:'1 Litro',price:0},{name:'2 Litros',price:3}], extras:[] },
+    { id:uid(), name:'Fanta Laranja', desc:'Lata 350ml bem gelada', price:6.00, promoPrice:null, cost:2.5, category:'Refrigerantes', stock:35, image:'🍊', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Sprite', desc:'O limão que é uma uva', price:6.00, promoPrice:null, cost:2.5, category:'Refrigerantes', stock:30, image:'🥤', highlight:false, promo:false, active:true,
+      variations:[{name:'Lata 350ml',price:0},{name:'PET 600ml',price:2}], extras:[] },
+    { id:uid(), name:'Coca-Cola Zero', desc:'Sem açúcar, mesmo sabor', price:6.00, promoPrice:null, cost:2.5, category:'Refrigerantes', stock:28, image:'🥤', highlight:false, promo:false, active:true, variations:[], extras:[] },
     { id:uid(), name:'Suco de Laranja Natural', desc:'Espremido na hora', price:10.00, promoPrice:null, cost:4, category:'Sucos', stock:15, image:'🍊', highlight:true, promo:false, active:true,
       variations:[{name:'500ml',price:0},{name:'1 Litro',price:5}],
       extras:[{name:'Sem açúcar',price:0},{name:'Com gelo',price:0}] },
     { id:uid(), name:'Suco de Morango', desc:'Natural, sem conservantes', price:10.00, promoPrice:null, cost:4, category:'Sucos', stock:12, image:'🍓', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Suco de Abacaxi', desc:'Fresco e docinho', price:9.00, promoPrice:null, cost:3.5, category:'Sucos', stock:14, image:'🍍', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Suco de Limão', desc:'Com ou sem açúcar', price:8.00, promoPrice:null, cost:3, category:'Sucos', stock:16, image:'🍋', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Suco de Uva Integral', desc:'Uva 100% natural', price:12.00, promoPrice:null, cost:6, category:'Sucos', stock:10, image:'🍇', highlight:true, promo:false, active:true, variations:[], extras:[] },
     { id:uid(), name:'Água Mineral', desc:'Sem gás, gelada', price:3.00, promoPrice:null, cost:1, category:'Águas', stock:50, image:'💧', highlight:false, promo:false, active:true,
       variations:[{name:'500ml',price:0},{name:'1,5 Litro',price:3}], extras:[] },
     { id:uid(), name:'Água com Gás', desc:'Com gás, gelada', price:4.00, promoPrice:null, cost:1.2, category:'Águas', stock:30, image:'💧', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Água de Coco', desc:'Natural, bem gelada', price:8.00, promoPrice:null, cost:4, category:'Águas', stock:18, image:'🥥', highlight:false, promo:false, active:true, variations:[], extras:[] },
     { id:uid(), name:'Heineken Long Neck', desc:'330ml, bem gelada', price:9.90, promoPrice:null, cost:5, category:'Cervejas', stock:24, image:'🍺', highlight:false, promo:false, active:true,
       variations:[{name:'Unidade',price:0},{name:'Pack 6',price:45}],
       extras:[{name:'Copo',price:1}] },
     { id:uid(), name:'Brahma Lata', desc:'350ml, gelada', price:5.00, promoPrice:4.50, cost:2.5, category:'Cervejas', stock:40, image:'🍺', highlight:false, promo:true, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Skol Lata', desc:'Mantida a 0°, gelada', price:5.00, promoPrice:4.20, cost:2.5, category:'Cervejas', stock:38, image:'🍺', highlight:false, promo:true, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Original 600ml', desc:'A cerveja do verão', price:12.90, promoPrice:null, cost:7, category:'Cervejas', stock:20, image:'🍺', highlight:true, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Stella Artois', desc:'Long neck 330ml', price:11.00, promoPrice:null, cost:6, category:'Cervejas', stock:22, image:'🍺', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Budweiser Lata', desc:'Simplesmente melhor', price:6.00, promoPrice:null, cost:3, category:'Cervejas', stock:30, image:'🍺', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Corona Extra', desc:'Long neck importada', price:12.00, promoPrice:null, cost:7, category:'Cervejas', stock:15, image:'🍺', highlight:false, promo:false, active:true,
+      variations:[{name:'Unidade',price:0},{name:'Com limão',price:0}], extras:[] },
     { id:uid(), name:'Red Bull', desc:'Energético tradicional', price:12.00, promoPrice:null, cost:6, category:'Energéticos', stock:18, image:'⚡', highlight:true, promo:false, active:true, variations:[], extras:[] },
-    { id:uid(), name:'Vinho Tinto Reservado', desc:'Cabernet Sauvignon', price:45.00, promoPrice:null, cost:22, category:'Vinhos', stock:8, image:'🍷', highlight:false, promo:false, active:true, variations:[], extras:[] }
+    { id:uid(), name:'Red Bull Sugar Free', desc:'Sem açúcar, mesma onda', price:12.50, promoPrice:null, cost:6.5, category:'Energéticos', stock:12, image:'⚡', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Monster Energy', desc:'Lata 473ml original', price:15.00, promoPrice:13.90, cost:8, category:'Energéticos', stock:16, image:'⚡', highlight:false, promo:true, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Monster Ultra', desc:'Sem açúcar, branca', price:15.00, promoPrice:null, cost:8, category:'Energéticos', stock:14, image:'⚡', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'TNT Energy', desc:'Vírus da agitação', price:8.00, promoPrice:null, cost:4, category:'Energéticos', stock:20, image:'⚡', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Vinho Tinto Reservado', desc:'Cabernet Sauvignon', price:45.00, promoPrice:null, cost:22, category:'Vinhos', stock:8, image:'🍷', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Vinho Branco Chardonnay', desc:'Nacional, leve', price:40.00, promoPrice:null, cost:20, category:'Vinhos', stock:7, image:'🍷', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Vinho Rosé', desc:'Suave e fresco', price:38.00, promoPrice:32.90, cost:18, category:'Vinhos', stock:6, image:'🍷', highlight:false, promo:true, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Espumante Brut', desc:'Pra brindar', price:55.00, promoPrice:null, cost:28, category:'Vinhos', stock:5, image:'🍾', highlight:true, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Cachaça 51', desc:'Garrafa 965ml', price:45.00, promoPrice:null, cost:22, category:'Destilados', stock:10, image:'🥃', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Vodka Smirnoff', desc:'Garrafa 1L', price:50.00, promoPrice:null, cost:24, category:'Destilados', stock:9, image:'🥃', highlight:true, promo:false, active:true,
+      variations:[{name:'Tradicional',price:0},{name:'Citrus',price:0}], extras:[] },
+    { id:uid(), name:'Whisky Red Label', desc:'Johnnie Walker 1L', price:145.00, promoPrice:null, cost:80, category:'Destilados', stock:6, image:'🥃', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Gin Tanqueray', desc:'Agora em 750ml', price:130.00, promoPrice:null, cost:70, category:'Destilados', stock:5, image:'🥃', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Tequila José Cuervo', desc:'Prata 750ml', price:95.00, promoPrice:null, cost:50, category:'Destilados', stock:4, image:'🥃', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Combo Brahma', desc:'10 latas 350ml com gelo', price:45.00, promoPrice:39.90, cost:25, category:'Combos', stock:12, image:'🧺', highlight:true, promo:true, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Combo Heineken', desc:'6 long necks com gelo', price:55.00, promoPrice:null, cost:30, category:'Combos', stock:10, image:'🧺', highlight:true, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Combo Festa', desc:'2 vinhos + espumante + freezer box', price:120.00, promoPrice:null, cost:75, category:'Combos', stock:5, image:'🧺', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Combo Petisco + Cerveja', desc:'Torresmo, amendoim e 4 long necks', price:49.90, promoPrice:44.90, cost:28, category:'Combos', stock:8, image:'🧺', highlight:false, promo:true, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Amendoim Torrado', desc:'Saco 200g', price:6.00, promoPrice:null, cost:2, category:'Petiscos', stock:25, image:'🥜', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Batata Chips', desc:'Sacão 300g', price:7.00, promoPrice:null, cost:3, category:'Petiscos', stock:20, image:'🥔', highlight:false, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Torresmo', desc:'Crocante, embalado 150g', price:12.00, promoPrice:null, cost:5, category:'Petiscos', stock:18, image:'🥓', highlight:true, promo:false, active:true, variations:[], extras:[] },
+    { id:uid(), name:'Azeitonas Verde', desc:'Pote 200g', price:8.00, promoPrice:null, cost:4, category:'Petiscos', stock:12, image:'🫒', highlight:false, promo:false, active:true, variations:[], extras:[] }
   ];
-  state.coupons = [
-    { id:uid(), code:'BEMVINDO10', type:'percent', value:10, min:20, active:true, uses:0, limit:0 },
-    { id:uid(), code:'FRETE5', type:'fixed', value:5, min:30, active:true, uses:0, limit:0 }
-  ];
-  state.bairros = [
-    { id:uid(), name:'Centro', tax:5, km:2 },
-    { id:uid(), name:'Jardim Gurilândia', tax:8, km:4 },
-    { id:uid(), name:'Vila Nova', tax:12, km:7 }
-  ];
-  state.categories = ['Refrigerantes','Sucos','Águas','Cervejas','Energéticos','Vinhos'];
+
+const SEED_CATEGORIES = ['Refrigerantes','Sucos','Águas','Cervejas','Energéticos','Vinhos','Destilados','Combos','Petiscos'];
+
+const SEED_COUPONS = [
+  { id:uid(), code:'BEMVINDO10', type:'percent', value:10, min:20, active:true, uses:0, limit:0 },
+  { id:uid(), code:'FRETE5', type:'fixed', value:5, min:30, active:true, uses:0, limit:0 }
+];
+
+const SEED_BAIRROS = [
+  { id:uid(), name:'Centro', tax:5, km:2 },
+  { id:uid(), name:'Jardim Gurilândia', tax:8, km:4 },
+  { id:uid(), name:'Vila Nova', tax:12, km:7 }
+];
+
+function seed() {
+  state.products = SEED_PRODUCTS.map(p => ({ ...p }));
+  state.coupons = SEED_COUPONS.map(c => ({ ...c }));
+  state.bairros = SEED_BAIRROS.map(b => ({ ...b }));
+  state.categories = [...SEED_CATEGORIES];
   state.adminLog = [];
   state.stockLog = [];
   save();
+}
+
+/* Junta ao catálogo salvo os produtos/categorias novos do SEED
+   (mostra os itens extras sem apagar a base que já existe no aparelho) */
+function mergeSeed() {
+  const names = new Set(state.products.map(p => p.name.toLowerCase().trim()).filter(Boolean));
+  SEED_PRODUCTS.filter(p => p.active).forEach(p => {
+    if (!names.has(p.name.toLowerCase().trim())) state.products.push({ ...p });
+  });
+  state.categories = [...new Set([...(state.categories || []), ...SEED_CATEGORIES])];
+  const codes = new Set(state.coupons.map(c => c.code));
+  SEED_COUPONS.forEach(c => { if (!codes.has(c.code)) state.coupons.push({ ...c }); });
+  const bn = new Set(state.bairros.map(b => b.name));
+  SEED_BAIRROS.forEach(b => { if (!bn.has(b.name)) state.bairros.push({ ...b }); });
+  saveLocalOnly();
+}
 }
 
 function applyTheme() {

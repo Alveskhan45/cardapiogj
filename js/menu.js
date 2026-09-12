@@ -150,6 +150,9 @@ function categoryEmoji(cat) {
   if (c.includes('cerveja')) return '🍺';
   if (c.includes('energ'))  return '⚡';
   if (c.includes('vinho'))  return '🍷';
+  if (c.includes('destilad') || c.includes('cachaça') || c.includes('cachaca')) return '🥃';
+  if (c.includes('combo'))  return '🧺';
+  if (c.includes('petisco') || c.includes('salgado') || c.includes('snack')) return '🍢';
   if (c.includes('drink') || c.includes('cocktail')) return '🍹';
   if (c.includes('café') || c.includes('cafe')) return '☕';
   if (c.includes('chá') || c.includes('cha')) return '🍵';
