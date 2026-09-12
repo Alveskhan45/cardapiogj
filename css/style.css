@@ -770,3 +770,27 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
   .related-grid{gap:6px}
   .opt-item{padding:7px 0}
 }
+
+/* ============================================================
+   ESTILO STARFOOD — coluna estreita + fontes condensadas
+   (itens mais longos que quadrados, sem quebra de texto)
+   ============================================================ */
+main{max-width:600px;padding:16px}
+.item{padding:10px 12px;border-radius:10px;gap:12px;margin-bottom:8px}
+.item-thumb{width:64px;height:64px;border-radius:10px;font-size:2rem}
+.item-body{gap:1px}
+.item-name{font-family:'Oswald','Inter',sans-serif;font-size:1.05rem;font-weight:600;color:var(--primary);letter-spacing:.2px;line-height:1.2;margin-bottom:2px}
+.item-desc{font-family:'Cuprum','Inter',sans-serif;font-size:.9rem;line-height:1.32;margin-bottom:2px}
+.item-price{font-family:'Cuprum',sans-serif}
+.item-price .value{font-family:'Yanone Kaffeesatz','Oswald',sans-serif;font-size:1.35rem;line-height:1;color:var(--primary)}
+.item-price .old{font-size:.78rem}
+.cat-toggle{font-family:'Oswald','Inter',sans-serif;padding:8px 14px;border-radius:10px;letter-spacing:.3px}
+.cat-toggle .cat-emoji{font-size:1.05rem}
+.cat-toggle .cat-count{font-size:.72rem;padding:2px 8px}
+.cat-menu{padding:0 16px}
+.sheet h2,.sheet .close-row h2{font-family:'Oswald',sans-serif;letter-spacing:.2px}
+.sheet .subtitle{font-family:'Cuprum',sans-serif;font-size:.92rem;line-height:1.4}
+@media (max-width:480px){
+  .item-thumb{width:56px;height:56px;font-size:1.7rem}
+  main{padding:12px}
+}
