@@ -781,3 +781,14 @@ main{max-width:600px;padding:16px}
   .item-thumb{width:56px;height:56px;font-size:1.7rem}
   main{padding:12px}
 }
+
+/* ============================================================
+   CATEGORIAS SEMPRE VERMELHAS
+   (mesmo visual ao abrir/fechar; as abas abertas mantêm a cor)
+   ============================================================ */
+.cat-toggle{background:var(--primary);color:#fff;border-color:var(--primary)}
+.cat-toggle:hover{border-color:var(--primary);transform:none}
+.cat-toggle .cat-count{background:rgba(255,255,255,.25);color:#fff}
+.cat-toggle .cat-emoji{background:rgba(255,255,255,.24);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.cat-toggle .arrow{background:rgba(255,255,255,.22);color:#fff}
+.cat-toggle .arrow,.cat-toggle.active .arrow{transform:none;opacity:1}
