@@ -321,7 +321,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // PWA: service worker (só funciona em http/https, ex.: localhost)
   if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
     addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(() => {
+        if (!sessionStorage.getItem('swReloaded')) {
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            sessionStorage.setItem('swReloaded', '1');
+            location.reload();
+          });
+        }
+      }).catch(() => {});
     });
   }
 });

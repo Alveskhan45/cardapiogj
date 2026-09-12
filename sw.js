@@ -1,5 +1,5 @@
 /* Service Worker — Cardápio Digital (modo offline leve) */
-const CACHE = 'cardapio-v1';
+const CACHE = 'cardapio-v2';
 const APP_SHELL = [
   './',
   './index.html',
