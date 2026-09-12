@@ -62,6 +62,10 @@ function openAdminPanel() {
   $('viewMenu').classList.add('hidden');
   $('btnAdmin').textContent = '🍽️';
   switchAdminTab('dash');
+  if (window.innerWidth <= 900 && !sessionStorage.getItem('admhint')) {
+    sessionStorage.setItem('admhint', '1');
+    setTimeout(() => toast('👆 Toque em \u201c☰ Menu\u201d no canto superior para ver as abas do painel.'), 600);
+  }
 }
 
 function closeAdminPanel() {

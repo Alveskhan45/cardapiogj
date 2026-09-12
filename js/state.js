@@ -13,8 +13,8 @@ let state = {
   config: {
     storeName: 'Bebidas Exemplo',
     slogan: 'Sua distribuidora de bebidas geladas',
-    whatsapp: '5585985708628',
-    phone: '(85) 98570-8628',
+    whatsapp: '5585987745402',
+    phone: '(85) 98774-5402',
     address: 'Rua das estrelas, 1 - Jardim Paraíso',
     minOrder: 15,
     deliveryTime: '30-45 min',
