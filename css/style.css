@@ -391,13 +391,20 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
   .admin-body{padding:16px}
 }
 @media (max-width:480px){
-  .hero h1{font-size:1.4rem}
+  .hero h1{font-size:clamp(1.2rem,5.5vw,1.7rem)}
   .item-thumb{width:70px;height:70px;font-size:1.8rem}
   .form-row{grid-template-columns:1fr}
   .section-head{flex-direction:column;align-items:stretch}
   .section-actions{justify-content:flex-end}
   .admin-clock{display:none}
   .admin-top{padding:12px 14px}
+  .admin-top h2{font-size:1rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .section-title-block h2{font-size:1.2rem}
+  .sticky{padding:10px 12px;gap:8px}
+  .sticky input{min-width:0;flex-basis:100%;order:3}
+  .icon-btn{width:38px;height:38px;font-size:1rem}
+  .topbar{padding:8px 12px;font-size:.78rem}
+  .topbar #topbarContact{display:none}
 }
 
 /* ============================================================
