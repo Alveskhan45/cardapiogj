@@ -27,7 +27,7 @@
 </div>
 
 <!-- ==================== TOPBAR ==================== -->
-<div class="topbar">
+<div class="topbar" id="topbar">
   <span class="st" id="statusBar">Aberto e aceitando pedidos</span>
   <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
     <span id="serverState" class="on">online</span>
@@ -53,7 +53,7 @@
 </div>
 
 <!-- ==================== HEADER STICKY ==================== -->
-<header class="sticky">
+<header class="sticky" id="stickyHeader">
   <input type="text" id="searchInput" placeholder="🔎 O que você procura?">
   <select id="sortSelect" class="sort-select" title="Ordenar produtos">
     <option value="menu">Ordem do cardápio</option>
@@ -136,7 +136,7 @@
       <h2 id="adminPageTitle">Dashboard</h2>
       <div class="admin-actions">
         <span class="admin-clock" id="adminClock">--:--</span>
-        <button class="btn ghost sm" id="btnBackToMenu" title="Voltar ao cardápio (vista do cliente)">🍽️ Ver cardápio</button>
+        <button class="btn ghost sm" id="btnBackToMenu" title="Sair do painel e voltar ao cardápio">🚪 Sair</button>
       </div>
     </header>
 

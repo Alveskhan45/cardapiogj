@@ -60,6 +60,7 @@ async function tryLogin() {
 function openAdminPanel() {
   $('viewAdmin').classList.add('active');
   $('viewMenu').classList.add('hidden');
+  ['topbar', 'stickyHeader', 'cartBar', 'connStrip'].forEach(id => $(id)?.classList.add('hidden'));
   $('btnAdmin').textContent = '🍽️';
   switchAdminTab('dash');
   if (window.innerWidth <= 900 && !sessionStorage.getItem('admhint')) {
@@ -75,6 +76,7 @@ function closeAdminPanel() {
   setToken('');
   $('viewAdmin').classList.remove('active');
   $('viewMenu').classList.remove('hidden');
+  ['topbar', 'stickyHeader', 'connStrip'].forEach(id => $(id)?.classList.remove('hidden'));
   $('btnAdmin').textContent = '⚙️';
 }
 
