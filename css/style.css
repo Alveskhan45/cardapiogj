@@ -745,6 +745,10 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
 .rel-card .rel-name{font-size:.75rem;font-weight:600;line-height:1.25;color:var(--text)}
 .rel-card .rel-price{font-size:.72rem;color:var(--primary);font-weight:700}
 
+/* --- Imagem / emoji do modal de item --- */
+.detail-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:14px}
+.detail-emoji{font-size:5rem;text-align:center;margin-bottom:10px;line-height:1}
+
 /* ============================================================
    BANNER FECHADO + CURVA ABC + ENDEREÇOS SALVOS
    ============================================================ */
@@ -757,5 +761,12 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
 .dash-item:nth-child(n+7) > .abc-enc{background:#9ca3af}
 
 @media (max-width:520px){
-  .related-grid{grid-template-columns:1fr}
+  .sheet{padding:16px}
+  .sheet h2{font-size:1.1rem}
+  .sheet .close-row h2{font-size:1.02rem;line-height:1.3}
+  .sheet .subtitle{font-size:.85rem;line-height:1.45}
+  .detail-img{height:130px;margin-bottom:10px}
+  .detail-emoji{font-size:3.2rem;margin-bottom:8px}
+  .related-grid{gap:6px}
+  .opt-item{padding:7px 0}
 }

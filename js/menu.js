@@ -310,8 +310,8 @@ function openItemDetail(id) {
   const basePrice = p.promo && p.promoPrice ? p.promoPrice : p.price;
   const out = p.stock <= 0;
   const imgContent = p.image && (p.image.startsWith('http') || p.image.startsWith('data:') || p.image.startsWith('assets/'))
-    ? `<img src="${p.image}" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:14px" onerror="this.outerHTML='<div style=\\'font-size:5rem;text-align:center\\'>🥤</div>'">`
-    : `<div style="font-size:5rem;text-align:center;margin-bottom:10px">${p.image||'🥤'}</div>`;
+    ? `<img class="detail-img" src="${p.image}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'detail-emoji\\'>🥤</div>'">`
+    : `<div class="detail-emoji">${p.image||'🥤'}</div>`;
 
   let variationsHtml = '';
   if (p.variations && p.variations.length) {
