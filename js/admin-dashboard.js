@@ -17,6 +17,8 @@ function renderDashboard() {
   // KPI: Estoque baixo
   const low = state.products.filter(p => p.active && p.stock <= state.config.minStock).length;
   const el3 = $('kpiLow'); if (el3) el3.textContent = low;
+  const kpiLowCard = el3 ? el3.closest('.kpi') : null;
+  if (kpiLowCard) kpiLowCard.classList.toggle('danger', low > 0);
 
   // KPI: Produtos
   const active = state.products.filter(p => p.active).length;

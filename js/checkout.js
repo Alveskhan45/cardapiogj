@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const ctf = $('cTypeF'); if (ctf) ctf.onchange = () => { updateFreightFields(); updateCoSummary(); };
   const cbf = $('cBairroF'); if (cbf) cbf.onchange = () => updateCoSummary();
-  const ckf = $('cKmF'); if (ckf) ckf.oninput = () => updateCoSummary();
+  const ckf = $('cKmF');
+  if (ckf) { ckf.addEventListener('input', updateCoSummary); ckf.addEventListener('change', updateCoSummary); }
   const cpf = $('cPayF'); if (cpf) cpf.onchange = () => updateCoSummary();
   const cph = $('cPhoneF'); if (cph) cph.oninput = () => renderCoInfo();
 
@@ -151,6 +152,19 @@ function updateCoSummary() {
   `;
   renderCoItems();
   renderCoInfo();
+  updateKmHint();
+}
+
+function updateKmHint() {
+  const hint = $('cKmHint'); if (!hint) return;
+  const opts = getFreightOpts();
+  const cfg = state.config;
+  if (opts.type === 'Retirada' || cfg.freteMode !== 'km') { hint.textContent = ''; return; }
+  const km = opts.km;
+  if (km <= 0) { hint.textContent = 'Informe a distância para calcular o frete.'; hint.style.color = 'var(--muted)'; return; }
+  if (cfg.freteKmGratis > 0 && km >= cfg.freteKmGratis) { hint.textContent = '🛵 Frete grátis!'; hint.style.color = 'var(--success)'; return; }
+  hint.textContent = `🛵 Frete: ${brl(km * (Number(cfg.freteKmVal) || 0))}`;
+  hint.style.color = 'var(--muted)';
 }
 
 /* ==================== CONFIRMAÇÃO / SUCESSO ==================== */

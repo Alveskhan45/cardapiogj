@@ -258,6 +258,7 @@ mark.hl{background:#fff3a8;color:inherit;padding:0 2px;border-radius:3px}
 .kpi-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
 .kpi small{display:block;color:var(--muted);font-size:.75rem;text-transform:uppercase;font-weight:700;letter-spacing:.5px;margin-bottom:2px}
 .kpi strong{display:block;font-size:1.4rem;font-weight:800;color:var(--text);line-height:1.2}
+.kpi.danger strong{color:var(--danger)}
 .kpi-sub{font-size:.75rem;color:var(--muted)}
 
 /* DASH GRID */

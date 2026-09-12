@@ -188,11 +188,8 @@ function renderBanner() {
   if (state.config.minOrder > 0) {
     banners.push(`<div class="banner">🛒 <strong>Pedido mínimo: ${brl(state.config.minOrder)}</strong> — frete conforme região</div>`);
   }
-  const lowStock = state.products.filter(p => p.active && p.stock <= state.config.minStock && p.stock > 0);
-  if (lowStock.length) {
-    banners.push(`<div class="banner warn">⚠️ <strong>Últimas unidades:</strong> ${lowStock.slice(0,3).map(p=>p.name).join(', ')}${lowStock.length>3?' e mais...':''}</div>`);
-  }
   bannerArea.innerHTML = banners.join('');
+  if ($('bannerArea').children.length === 0) bannerArea.style.display = 'none';
 }
 
 function renderMenu() {
