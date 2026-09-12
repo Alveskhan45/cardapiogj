@@ -397,7 +397,6 @@ function mergeSeed() {
   SEED_BAIRROS.forEach(b => { if (!bn.has(b.name)) state.bairros.push({ ...b }); });
   saveLocalOnly();
 }
-}
 
 function applyTheme() {
   const c = state.config;
