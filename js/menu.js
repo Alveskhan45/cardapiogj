@@ -219,8 +219,9 @@ function renderItem(p, q = '') {
     : (hasVar ? `<button class="quick-add orange" data-qadd="${p.id}" title="Escolher opções">＋</button>` : '');
   return `
     <div class="item ${out ? 'out' : ''}" data-open="${p.id}" tabindex="0">
-      <div class="item-thumb" style="background:${thumbBg(p.category)}">${imgContent}${flag}</div>
+      <div class="item-thumb" style="background:${thumbBg(p.category)}">${imgContent}</div>
       <div class="item-body">
+        ${flag}
         <div class="item-name">${highlight(p.name, q)}${out ? ' <span style="color:#6b7280;font-size:.75rem">(esgotado)</span>' : ''}</div>
         <div class="item-desc">${highlight(p.desc || '', q)}</div>
         <div class="item-price">

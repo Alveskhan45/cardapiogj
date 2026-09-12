@@ -100,6 +100,7 @@ mark.hl{background:#fff3a8;color:inherit;padding:0 2px;border-radius:3px}
 .item-thumb img{width:100%;height:100%;object-fit:cover}
 .item-thumb .flag{position:absolute;top:4px;left:4px;background:var(--accent);color:#78350f;font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:999px;text-transform:uppercase}
 .item-thumb .flag.promo{background:var(--primary);color:#fff}
+.item-body .flag{position:static;display:inline-block;margin:0 0 4px;align-self:flex-start}
 .item-body{flex:1;display:flex;flex-direction:column;min-width:0}
 .item-name{font-weight:700;font-size:1rem;margin-bottom:4px}
 .item-desc{font-size:.85rem;color:var(--muted);flex:1;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -620,6 +621,7 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
 [data-theme="dark"] .log-list,
 [data-theme="dark"] .track-code,
 [data-theme="dark"] .chip{background:var(--card);color:var(--text)}
+[data-theme="dark"] .detail-img{background:var(--card)}
 
 [data-theme="dark"] .overlay{background:rgba(3,6,12,.72)}
 [data-theme="dark"] .form-group input,
@@ -733,7 +735,7 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
 .rel-card .rel-price{font-size:.72rem;color:var(--primary);font-weight:700}
 
 /* --- Imagem / emoji do modal de item --- */
-.detail-img{width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:14px}
+.detail-img{width:100%;height:300px;object-fit:contain;background:#fff;border-radius:12px;margin-bottom:14px;padding:10px}
 .detail-emoji{font-size:5rem;text-align:center;margin-bottom:10px;line-height:1}
 
 /* ============================================================
@@ -752,7 +754,7 @@ footer .powered{margin-top:20px;font-size:.75rem;color:#6b7280}
   .sheet h2{font-size:1.1rem}
   .sheet .close-row h2{font-size:1.02rem;line-height:1.3}
   .sheet .subtitle{font-size:.85rem;line-height:1.45}
-  .detail-img{height:130px;margin-bottom:10px}
+  .detail-img{height:220px;margin-bottom:10px}
   .detail-emoji{font-size:3.2rem;margin-bottom:8px}
   .related-grid{gap:6px}
   .opt-item{padding:7px 0}
