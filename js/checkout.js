@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     populateBairros();
     updateFreightFields();
     updateCoSummary();
-    renderSavedAddrs();
     $('overlayCheckout').classList.add('open');
     if (state.config.freteMode === 'km') useCustomerLocation();
   };
@@ -59,22 +58,6 @@ function fillAddr(str) {
   const p = String(str).split(',').map(s => s.trim());
   const set = (id, v) => { const el = $(id); if (el) el.value = v || ''; };
   set('cRuaF', p[0]); set('cNumF', p[1]); set('cBairroNomeF', p[2]); set('cCepF', p[3]);
-}
-
-function renderSavedAddrs() {
-  const el = $('savedAddrList');
-  if (!el) return;
-  const list = getSavedAddresses();
-  if (!list.length) { el.innerHTML = ''; return; }
-  el.innerHTML = '<small class="field-hint" style="display:block;margin-top:6px">Endereços usados antes (toque para preencher):</small>' +
-    list.slice(0, 5).map((a, i) =>
-      `<button type="button" class="chip" data-addr="${i}" style="margin:4px 4px 0 0">${a.length > 34 ? a.slice(0, 34) + '…' : a}</button>`
-    ).join('');
-  el.querySelectorAll('[data-addr]').forEach(b => b.onclick = () => {
-    fillAddr(list[+b.dataset.addr]);
-    updateCoSummary();
-    if (state.config.freteMode === 'km') useCustomerLocation();
-  });
 }
 
 function saveMyAddress(addr) {
