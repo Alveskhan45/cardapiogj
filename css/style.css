@@ -803,3 +803,7 @@ main{max-width:600px;padding:16px}
 @media (max-width:480px){
   .admin-btn{height:38px;padding:0 12px;font-size:.76rem}
 }
+
+/* Botão de localização no checkout (frete por KM) */
+.geo-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:6px;padding:9px 12px;border-radius:10px;border:1px dashed var(--primary);background:rgba(217,4,41,.05);color:var(--primary);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit}
+.geo-btn:hover{background:rgba(217,4,41,.12)}

@@ -549,6 +549,11 @@
               <div class="form-group"><label>KM para frete grátis</label><input type="number" id="cFreteKmGratis" step="0.01"></div>
             </div>
             <div class="form-group"><label>Frete grátis acima de (R$)</label><input type="number" id="cFreteGratisAcima" step="0.01"></div>
+            <div class="form-group">
+              <label>Local da loja (lat, lng) — p/ frete por KM automático</label>
+              <input id="cCoords" placeholder="ex.: -3.743280, -38.523085">
+              <button type="button" class="btn ghost" id="btnLocAdmin" style="margin-top:6px">📍 Usar minha localização</button>
+            </div>
           </div>
 
           <div class="cfg-card">
@@ -748,7 +753,12 @@
     <div class="form-group" id="addrWrap"><label>Endereço de Entrega *</label><textarea id="cAddrF" rows="2" autocomplete="street-address"></textarea><small class="field-hint">Rua, número, complemento e um ponto de referência.</small><div id="savedAddrList"></div></div>
     <div class="form-row" id="bairroWrap">
       <div class="form-group"><label>Bairro</label><select id="cBairroF"><option value="">— Selecione —</option></select><small class="field-hint">Define o valor do frete.</small></div>
-      <div class="form-group"><label>KM aprox.</label><input type="number" id="cKmF" step="0.1" min="0" inputmode="decimal"><small class="field-hint">Distância até o endereço.</small><small class="field-hint" id="cKmHint"></small></div>
+      <div class="form-group"><label>Distância até a loja</label>
+        <input type="number" id="cKmF" step="0.1" min="0" inputmode="decimal" placeholder="km">
+        <button type="button" class="geo-btn" id="btnLocKm">📍 Calcular pela minha localização</button>
+        <small class="field-hint">A distância é calculada automaticamente.</small>
+        <small class="field-hint" id="cKmHint"></small>
+      </div>
     </div>
     <div class="form-group"><label>Troco para quanto? (opcional)</label><input id="cChangeF" inputmode="decimal" placeholder="Ex: 50"><small class="field-hint">Se for pagar em dinheiro e precisar de troco.</small></div>
     <div class="form-group"><label>Observações</label><textarea id="cObsF" rows="2" placeholder="Ex: casa azul, entregar no portão..."></textarea><small class="field-hint">Alguma instrução especial para a entrega?</small></div>

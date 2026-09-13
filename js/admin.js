@@ -653,6 +653,7 @@ function renderConfig() {
   $('cFreteKmVal').value = c.freteKmVal || 0;
   $('cFreteKmGratis').value = c.freteKmGratis || 0;
   $('cFreteGratisAcima').value = c.freteGratisAcima || 0;
+  $('cCoords').value = c.storeCoords || '';
   $('cPay').value = c.payments.join(', ');
   $('cPix').value = c.pix||'';
   $('cPixName').value = c.pixName||'';
@@ -697,6 +698,20 @@ function renderPresets() {
   });
 }
 
+function getStoreLocation() {
+  if (!navigator.geolocation) { toast('Localização não suportada neste aparelho'); return; }
+  toast('📍 Buscando sua localização...');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const v = pos.coords.latitude.toFixed(6) + ',' + pos.coords.longitude.toFixed(6);
+      const el = $('cCoords'); if (el) el.value = v;
+      toast('✅ Localização da loja preenchida — clique em 💾 Salvar');
+    },
+    () => toast('Permita o acesso à localização para este site no navegador'),
+    { enableHighAccuracy: true, timeout: 12000 }
+  );
+}
+
 function saveConfig() {
   const c = state.config;
   c.storeName = $('cName').value.trim() || 'Minha Loja';
@@ -714,6 +729,7 @@ function saveConfig() {
   c.freteKmVal = parseFloat($('cFreteKmVal').value) || 0;
   c.freteKmGratis = parseFloat($('cFreteKmGratis').value) || 0;
   c.freteGratisAcima = parseFloat($('cFreteGratisAcima').value) || 0;
+  c.storeCoords = $('cCoords').value.trim();
   c.payments = $('cPay').value.split(',').map(s=>s.trim()).filter(Boolean);
   c.minStock = parseInt($('cMinStock').value) || 5;
   c.pix = $('cPix').value.trim();
@@ -994,6 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Config
   const btnSaveCfg = $('btnSaveCfg'); if (btnSaveCfg) btnSaveCfg.onclick = saveConfig;
+  const btnLocAdmin = $('btnLocAdmin'); if (btnLocAdmin) btnLocAdmin.onclick = getStoreLocation;
 
   // Segurança
   const btnSavePass = $('btnSavePass'); if (btnSavePass) btnSavePass.onclick = changePassword;

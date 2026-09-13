@@ -18,12 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCoSummary();
     renderSavedAddrs();
     $('overlayCheckout').classList.add('open');
+    if (state.config.freteMode === 'km') useCustomerLocation();
   };
 
   const ctf = $('cTypeF'); if (ctf) ctf.onchange = () => { updateFreightFields(); updateCoSummary(); };
   const cbf = $('cBairroF'); if (cbf) cbf.onchange = () => updateCoSummary();
   const ckf = $('cKmF');
   if (ckf) { ckf.addEventListener('input', updateCoSummary); ckf.addEventListener('change', updateCoSummary); }
+  const bLocKm = $('btnLocKm'); if (bLocKm) bLocKm.onclick = useCustomerLocation;
   const cpf = $('cPayF'); if (cpf) cpf.onchange = () => updateCoSummary();
   const cph = $('cPhoneF'); if (cph) cph.oninput = () => renderCoInfo();
 
@@ -98,6 +100,59 @@ function getFreightOpts() {
     bairroId: $('cBairroF').value,
     km: parseFloat($('cKmF').value) || 0
   };
+}
+
+/* Distância em linha reta (Km) entre dois pontos — fórmula de Haversine */
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function parseStoreCoords() {
+  const raw = (state.config.storeCoords || '').trim();
+  if (!raw) return null;
+  const p = raw.split(',').map(x => parseFloat(x.trim()));
+  if (p.length < 2 || isNaN(p[0]) || isNaN(p[1])) return null;
+  return { lat: p[0], lng: p[1] };
+}
+
+/* Calcula o KM usando o GPS do cliente e preenche automaticamente */
+function useCustomerLocation() {
+  const kmIn = $('cKmF'); if (!kmIn) return;
+  const hint = $('cKmHint');
+  const store = parseStoreCoords();
+  if (!store) {
+    kmIn.readOnly = false;
+    if (hint) { hint.textContent = 'Fale com a loja para cadastrar a localização (Admin → Config).'; hint.style.color = 'var(--warning)'; }
+    return;
+  }
+  if (!navigator.geolocation) {
+    kmIn.readOnly = false;
+    if (hint) { hint.textContent = 'Navegador sem localização — digite a distância manualmente.'; hint.style.color = 'var(--warning)'; }
+    return;
+  }
+  kmIn.readOnly = true;
+  if (hint) { hint.textContent = '📍 Buscando sua localização...'; hint.style.color = 'var(--muted)'; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const km = haversineKm(pos.coords.latitude, pos.coords.longitude, store.lat, store.lng);
+      kmIn.value = km.toFixed(1);
+      kmIn.readOnly = false;
+      updateCoSummary();
+      if (hint) { hint.textContent = `📍 Você está a ~${km.toFixed(1)} km da loja`; hint.style.color = 'var(--muted)'; }
+      toast(`📍 Distância calculada: ~${km.toFixed(1)} km`);
+    },
+    () => {
+      kmIn.readOnly = false;
+      if (hint) { hint.textContent = 'Sem permissão de localização — digite a distância manualmente.'; hint.style.color = 'var(--warning)'; }
+      toast('Permita o acesso à localização no navegador');
+    },
+    { enableHighAccuracy: true, timeout: 12000 }
+  );
 }
 
 function renderCoItems() {
