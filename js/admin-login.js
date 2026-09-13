@@ -61,7 +61,6 @@ function openAdminPanel() {
   $('viewAdmin').classList.add('active');
   $('viewMenu').classList.add('hidden');
   ['topbar', 'stickyHeader', 'cartBar', 'connStrip'].forEach(id => $(id)?.classList.add('hidden'));
-  $('btnAdmin').textContent = '🍽️';
   switchAdminTab('dash');
   if (window.innerWidth <= 900 && !sessionStorage.getItem('admhint')) {
     sessionStorage.setItem('admhint', '1');
@@ -77,7 +76,6 @@ function closeAdminPanel() {
   $('viewAdmin').classList.remove('active');
   $('viewMenu').classList.remove('hidden');
   ['topbar', 'stickyHeader', 'connStrip'].forEach(id => $(id)?.classList.remove('hidden'));
-  $('btnAdmin').textContent = '⚙️';
 }
 
 /* ==================== TEMPO REAL (SSE) — aviso de novo pedido ==================== */
