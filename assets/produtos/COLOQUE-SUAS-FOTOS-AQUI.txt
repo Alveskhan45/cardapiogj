@@ -1,6 +1,0 @@
-Salve aqui as fotos dos produtos (ex.: coca.jpg, cerveja.png...).
-
-Depois, no cadastro do produto no Admin, no campo "Foto":
-  -> digite  assets/produtos/coca.jpg
-
-Assim que publicar, as fotos aparecem nos cards e na tela do item.

@@ -807,3 +807,4 @@ main{max-width:600px;padding:16px}
 /* Botão de localização no checkout (frete por KM) */
 .geo-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:6px;padding:9px 12px;border-radius:10px;border:1px dashed var(--primary);background:rgba(217,4,41,.05);color:var(--primary);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit}
 .geo-btn:hover{background:rgba(217,4,41,.12)}
+.dist-line{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(217,4,41,.06);border:1px solid var(--border);font-size:.85rem;font-weight:600;margin-bottom:4px}

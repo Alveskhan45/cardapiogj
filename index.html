@@ -753,10 +753,11 @@
     <div class="form-group" id="addrWrap"><label>Endereço de Entrega *</label><textarea id="cAddrF" rows="2" autocomplete="street-address"></textarea><small class="field-hint">Rua, número, complemento e um ponto de referência.</small><div id="savedAddrList"></div></div>
     <div class="form-row" id="bairroWrap">
       <div class="form-group"><label>Bairro</label><select id="cBairroF"><option value="">— Selecione —</option></select><small class="field-hint">Define o valor do frete.</small></div>
-      <div class="form-group"><label>Distância até a loja</label>
-        <input type="number" id="cKmF" step="0.1" min="0" inputmode="decimal" placeholder="km">
-        <button type="button" class="geo-btn" id="btnLocKm">📍 Calcular pela minha localização</button>
-        <small class="field-hint">A distância é calculada automaticamente.</small>
+      <div class="form-group" id="kmWrap">
+        <label>Distância / Frete</label>
+        <input type="hidden" id="cKmF" value="">
+        <div class="dist-line" id="distLine">📍 Calculando distância...</div>
+        <button type="button" class="geo-btn" id="btnLocKm">📍 Calcular distância</button>
         <small class="field-hint" id="cKmHint"></small>
       </div>
     </div>

@@ -90,7 +90,7 @@ function updateFreightFields() {
   $('addrWrap').style.display = isEntrega ? 'block' : 'none';
   $('bairroWrap').style.display = isEntrega ? 'grid' : 'none';
 
-  $('cKmF').parentElement.style.display = (isEntrega && mode === 'km') ? 'block' : 'none';
+  const kmWrap = $('kmWrap'); if (kmWrap) kmWrap.style.display = (isEntrega && mode === 'km') ? 'block' : 'none';
   $('cBairroF').parentElement.style.display = (isEntrega && mode === 'bairro') ? 'block' : 'none';
 }
 
@@ -120,36 +120,56 @@ function parseStoreCoords() {
   return { lat: p[0], lng: p[1] };
 }
 
-/* Calcula o KM usando o GPS do cliente e preenche automaticamente */
+/* Calcula o KM usando o GPS do cliente e preenche automaticamente
+   (campo oculto; na tela aparece só a distância e o frete) */
+function setDist(text, color) {
+  const line = $('distLine'); if (!line) return;
+  line.innerHTML = text;
+  line.style.color = color || 'var(--text)';
+}
+
 function useCustomerLocation() {
   const kmIn = $('cKmF'); if (!kmIn) return;
   const hint = $('cKmHint');
+  const cfg = state.config;
   const store = parseStoreCoords();
+
   if (!store) {
-    kmIn.readOnly = false;
-    if (hint) { hint.textContent = 'Fale com a loja para cadastrar a localização (Admin → Config).'; hint.style.color = 'var(--warning)'; }
+    kmIn.value = '';
+    setDist('🛵 Frete a calcular — a loja confirma no WhatsApp', 'var(--warning)');
+    if (hint) { hint.textContent = 'A loja ainda não cadastrou a localização (Admin → Config).'; hint.style.color = 'var(--muted)'; }
+    updateCoSummary();
     return;
   }
   if (!navigator.geolocation) {
-    kmIn.readOnly = false;
-    if (hint) { hint.textContent = 'Navegador sem localização — digite a distância manualmente.'; hint.style.color = 'var(--warning)'; }
+    kmIn.value = '';
+    setDist('🛵 Frete a combinar', 'var(--warning)');
+    if (hint) { hint.textContent = 'Navegador sem localização.'; hint.style.color = 'var(--muted)'; }
+    updateCoSummary();
     return;
   }
-  kmIn.readOnly = true;
-  if (hint) { hint.textContent = '📍 Buscando sua localização...'; hint.style.color = 'var(--muted)'; }
+
+  setDist('📍 Calculando distância...', 'var(--muted)');
   navigator.geolocation.getCurrentPosition(
     pos => {
       const km = haversineKm(pos.coords.latitude, pos.coords.longitude, store.lat, store.lng);
-      kmIn.value = km.toFixed(1);
-      kmIn.readOnly = false;
+      const k = Number(km.toFixed(1)) || 0;
+      kmIn.value = String(k);
       updateCoSummary();
-      if (hint) { hint.textContent = `📍 Você está a ~${km.toFixed(1)} km da loja`; hint.style.color = 'var(--muted)'; }
-      toast(`📍 Distância calculada: ~${km.toFixed(1)} km`);
+      if (cfg.freteKmGratis > 0 && k >= cfg.freteKmGratis) {
+        setDist(`📍 Distância: ~${k} km • 🛵 Frete grátis!`, 'var(--success)');
+      } else {
+        const frete = k * (Number(cfg.freteKmVal) || 0);
+        setDist(`📍 Distância: ~${k} km • 🛵 Frete: ${brl(frete)}`, 'var(--text)');
+      }
+      if (hint) { hint.textContent = ''; }
     },
     () => {
-      kmIn.readOnly = false;
-      if (hint) { hint.textContent = 'Sem permissão de localização — digite a distância manualmente.'; hint.style.color = 'var(--warning)'; }
-      toast('Permita o acesso à localização no navegador');
+      kmIn.value = '';
+      updateCoSummary();
+      setDist('🛵 Frete a calcular — a loja combina e confirma no WhatsApp', 'var(--warning)');
+      if (hint) { hint.textContent = 'Permita o acesso à localização no navegador.'; hint.style.color = 'var(--muted)'; }
+      toast('Permita a localização para calcular o frete automático');
     },
     { enableHighAccuracy: true, timeout: 12000 }
   );
@@ -199,10 +219,13 @@ function updateCoSummary() {
   const opts = getFreightOpts();
   const { sub, discount, del } = calcTotals(opts);
   const finalTot = sub - discount + del;
+  const freightText = (!opts.km && opts.type === 'Entrega' && state.config.freteMode === 'km')
+    ? 'a combinar'
+    : brl(del);
   $('coSummary').innerHTML = `
     <div class="row"><span>Subtotal</span><span>${brl(sub)}</span></div>
     ${discount ? `<div class="row" style="color:var(--success)"><span>Desconto</span><span>− ${brl(discount)}</span></div>` : ''}
-    <div class="row"><span>Frete ${opts.type==='Retirada'?'(retirada)':''}</span><span>${brl(del)}</span></div>
+    <div class="row"><span>Frete ${opts.type==='Retirada'?'(retirada)':''}</span><span>${freightText}</span></div>
     <div class="row tot"><span>Total</span><span>${brl(finalTot)}</span></div>
   `;
   renderCoItems();
@@ -215,11 +238,12 @@ function updateKmHint() {
   const opts = getFreightOpts();
   const cfg = state.config;
   if (opts.type === 'Retirada' || cfg.freteMode !== 'km') { hint.textContent = ''; return; }
-  const km = opts.km;
-  if (km <= 0) { hint.textContent = 'Informe a distância para calcular o frete.'; hint.style.color = 'var(--muted)'; return; }
-  if (cfg.freteKmGratis > 0 && km >= cfg.freteKmGratis) { hint.textContent = '🛵 Frete grátis!'; hint.style.color = 'var(--success)'; return; }
-  hint.textContent = `🛵 Frete: ${brl(km * (Number(cfg.freteKmVal) || 0))}`;
-  hint.style.color = 'var(--muted)';
+  if (opts.km <= 0) {
+    hint.textContent = 'Se não conseguir localizar, o frete é combinado com a loja no WhatsApp.';
+    hint.style.color = 'var(--muted)';
+    return;
+  }
+  hint.textContent = '';
 }
 
 /* ==================== CONFIRMAÇÃO / SUCESSO ==================== */
@@ -298,7 +322,6 @@ async function confirmOrder() {
   if (type === 'Entrega' && addr.length < 5) { toast('Endereço incompleto'); confirmOrder.busy = false; return; }
   if (phone && phone.length < 10) { toast('Telefone inválido — use com DDD'); confirmOrder.busy = false; return; }
   if (type === 'Entrega' && state.config.freteMode === 'bairro' && !bairroId) { toast('Selecione o bairro'); confirmOrder.busy = false; return; }
-  if (type === 'Entrega' && state.config.freteMode === 'km' && !km) { toast('Informe a distância em KM'); confirmOrder.busy = false; return; }
 
   const { tot: totalPre } = calcTotals({ type, bairroId, km });
   if (payment === 'Dinheiro' && change) {
