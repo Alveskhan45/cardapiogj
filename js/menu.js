@@ -183,7 +183,7 @@ function renderBanner() {
   if (!bannerArea) return;
   const banners = [];
   if (state.config.blockWhenClosed && !isStoreOpen()) {
-    banners.push(`<div class="banner closed">🔒 <strong>Estamos fechados neste momento.</strong> Funcionamento: ${state.config.hours || '—'}. Você pode enviar seu pedido normalmente — a loja confirma quando abrir.</div>`);
+    banners.push(`<div class="banner closed">🔒 <strong>Estamos fechados neste momento.</strong> Funcionamento: ${state.config.hours || '—'}. O envio de pedidos é liberado no horário de funcionamento.</div>`);
   }
   if (state.config.minOrder > 0) {
     banners.push(`<div class="banner">🛒 <strong>Pedido mínimo: ${brl(state.config.minOrder)}</strong> — frete conforme região</div>`);

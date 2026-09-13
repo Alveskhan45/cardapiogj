@@ -1,3 +1,11 @@
+function renderSendBtnState() {
+  const bc = $('btnConfirm');
+  if (!bc) return;
+  const closed = state.config.blockWhenClosed && !isStoreOpen();
+  bc.disabled = closed;
+  bc.textContent = closed ? '🔒 Fora do horário de funcionamento' : '✅ Enviar pelo WhatsApp';
+}
+
 /* ==================== CHECKOUT ==================== */
 document.addEventListener('DOMContentLoaded', () => {
   const bf = $('btnFinish'); if (bf) bf.onclick = openCart;
@@ -16,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     populateBairros();
     updateFreightFields();
     updateCoSummary();
+    renderSendBtnState();
     $('overlayCheckout').classList.add('open');
     if (state.config.freteMode === 'km') useCustomerLocation();
   };
@@ -333,7 +342,9 @@ async function confirmOrder() {
   confirmOrder.busy = true;
 
   if (state.config.blockWhenClosed && !isStoreOpen()) {
-    toast('⚠️ Estamos fora do horário de funcionamento — você pode enviar o pedido mesmo assim; a loja confirma quando abrir.');
+    toast('🔒 Estamos fora do horário de funcionamento — o envio de pedidos está desativado.');
+    confirmOrder.busy = false;
+    return;
   }
 
   const name = $('cNameF').value.trim();
