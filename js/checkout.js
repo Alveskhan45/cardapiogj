@@ -26,6 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const ckf = $('cKmF');
   if (ckf) { ckf.addEventListener('input', updateCoSummary); ckf.addEventListener('change', updateCoSummary); }
   const bLocKm = $('btnLocKm'); if (bLocKm) bLocKm.onclick = useCustomerLocation;
+  const ccep = $('cCepF');
+  if (ccep) ccep.addEventListener('input', () => {
+    const d = ccep.value.replace(/\D/g, '');
+    if (d.length >= 8 && state.config.freteMode === 'km') useCustomerLocation();
+  });
   const cpf = $('cPayF'); if (cpf) cpf.onchange = () => updateCoSummary();
   const cph = $('cPhoneF'); if (cph) cph.oninput = () => renderCoInfo();
 
@@ -44,6 +49,18 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 });
 
+/* Endereço estruturado (Rua, Número, Bairro, CEP) */
+function buildAddr() {
+  return [$('cRuaF')?.value.trim(), $('cNumF')?.value.trim(), $('cBairroNomeF')?.value.trim(), $('cCepF')?.value.trim()].filter(Boolean).join(', ');
+}
+
+function fillAddr(str) {
+  if (!str) return;
+  const p = String(str).split(',').map(s => s.trim());
+  const set = (id, v) => { const el = $(id); if (el) el.value = v || ''; };
+  set('cRuaF', p[0]); set('cNumF', p[1]); set('cBairroNomeF', p[2]); set('cCepF', p[3]);
+}
+
 function renderSavedAddrs() {
   const el = $('savedAddrList');
   if (!el) return;
@@ -54,8 +71,9 @@ function renderSavedAddrs() {
       `<button type="button" class="chip" data-addr="${i}" style="margin:4px 4px 0 0">${a.length > 34 ? a.slice(0, 34) + '…' : a}</button>`
     ).join('');
   el.querySelectorAll('[data-addr]').forEach(b => b.onclick = () => {
-    const a = list[+b.dataset.addr];
-    if (a) { $('cAddrF').value = a; updateCoSummary(); }
+    fillAddr(list[+b.dataset.addr]);
+    updateCoSummary();
+    if (state.config.freteMode === 'km') useCustomerLocation();
   });
 }
 
@@ -120,56 +138,86 @@ function parseStoreCoords() {
   return { lat: p[0], lng: p[1] };
 }
 
-/* Calcula o KM usando o GPS do cliente e preenche automaticamente
-   (campo oculto; na tela aparece só a distância e o frete) */
 function setDist(text, color) {
   const line = $('distLine'); if (!line) return;
   line.innerHTML = text;
   line.style.color = color || 'var(--text)';
 }
 
+/* Distância pelo CEP (BrasilAPI, grátis e sem chave) — retorna km ou null */
+async function cepKm(cep, store) {
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cep/v2/' + cep);
+    if (!r.ok) return null;
+    const j = await r.json();
+    const c = j.location && j.location.coordinates;
+    const lat = parseFloat(c && c.latitude);
+    const lng = parseFloat(c && c.longitude);
+    if (isNaN(lat) || isNaN(lng)) return null;
+    return haversineKm(lat, lng, store.lat, store.lng);
+  } catch (e) { return null; }
+}
+
+function applyKm(km) {
+  const kmIn = $('cKmF'); if (!kmIn) return;
+  const cfg = state.config;
+  const k = Number((km || 0).toFixed(1)) || 0;
+  kmIn.value = String(k);
+  updateCoSummary();
+  if (cfg.freteKmGratis > 0 && k >= cfg.freteKmGratis) {
+    setDist(`📍 Distância: ~${k} km • 🛵 Frete grátis!`, 'var(--success)');
+  } else {
+    setDist(`📍 Distância: ~${k} km • 🛵 Frete: ${brl(k * (Number(cfg.freteKmVal) || 0))}`, 'var(--text)');
+  }
+  const hint = $('cKmHint'); if (hint) hint.textContent = '';
+}
+
+/* Calcula a distância automaticamente: 1º pelo CEP, 2º pelo GPS.
+   Se nada funcionar, o frete fica "a combinar" (a loja confirma). */
 function useCustomerLocation() {
   const kmIn = $('cKmF'); if (!kmIn) return;
   const hint = $('cKmHint');
-  const cfg = state.config;
   const store = parseStoreCoords();
 
   if (!store) {
     kmIn.value = '';
-    setDist('🛵 Frete a calcular — a loja confirma no WhatsApp', 'var(--warning)');
+    setDist('🛵 Frete a combinar — a loja confirma no WhatsApp', 'var(--warning)');
     if (hint) { hint.textContent = 'A loja ainda não cadastrou a localização (Admin → Config).'; hint.style.color = 'var(--muted)'; }
     updateCoSummary();
     return;
   }
-  if (!navigator.geolocation) {
-    kmIn.value = '';
-    setDist('🛵 Frete a combinar', 'var(--warning)');
-    if (hint) { hint.textContent = 'Navegador sem localização.'; hint.style.color = 'var(--muted)'; }
-    updateCoSummary();
+
+  const cep = ($('cCepF')?.value || '').replace(/\D/g, '');
+  if (cep.length === 8) {
+    setDist('📍 Calculando pelo CEP...', 'var(--muted)');
+    cepKm(cep, store).then(km => {
+      if (km != null) { applyKm(km); return; }
+      gpsFallback(store, hint);
+    });
     return;
   }
 
-  setDist('📍 Calculando distância...', 'var(--muted)');
+  gpsFallback(store, hint);
+}
+
+function gpsFallback(store, hint) {
+  const kmIn = $('cKmF');
+  if (!navigator.geolocation) {
+    kmIn.value = '';
+    updateCoSummary();
+    setDist('🛵 Frete a combinar — a loja confirma no WhatsApp', 'var(--warning)');
+    if (hint) { hint.textContent = 'Navegador sem localização.'; hint.style.color = 'var(--muted)'; }
+    return;
+  }
+  setDist('📍 Calculando pela sua localização...', 'var(--muted)');
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      const km = haversineKm(pos.coords.latitude, pos.coords.longitude, store.lat, store.lng);
-      const k = Number(km.toFixed(1)) || 0;
-      kmIn.value = String(k);
-      updateCoSummary();
-      if (cfg.freteKmGratis > 0 && k >= cfg.freteKmGratis) {
-        setDist(`📍 Distância: ~${k} km • 🛵 Frete grátis!`, 'var(--success)');
-      } else {
-        const frete = k * (Number(cfg.freteKmVal) || 0);
-        setDist(`📍 Distância: ~${k} km • 🛵 Frete: ${brl(frete)}`, 'var(--text)');
-      }
-      if (hint) { hint.textContent = ''; }
-    },
+    pos => applyKm(haversineKm(pos.coords.latitude, pos.coords.longitude, store.lat, store.lng)),
     () => {
       kmIn.value = '';
       updateCoSummary();
-      setDist('🛵 Frete a calcular — a loja combina e confirma no WhatsApp', 'var(--warning)');
-      if (hint) { hint.textContent = 'Permita o acesso à localização no navegador.'; hint.style.color = 'var(--muted)'; }
-      toast('Permita a localização para calcular o frete automático');
+      setDist('🛵 Frete a combinar — a loja confirma no WhatsApp', 'var(--warning)');
+      if (hint) { hint.textContent = 'Permita a localização ou informe o CEP.'; hint.style.color = 'var(--muted)'; }
+      toast('Permita a localização ou digite o CEP para calcular o frete');
     },
     { enableHighAccuracy: true, timeout: 12000 }
   );
@@ -311,7 +359,7 @@ async function confirmOrder() {
   if (!name) { toast('Informe seu nome'); confirmOrder.busy = false; return; }
   const type = $('cTypeF').value;
   const payment = $('cPayF').value;
-  const addr = $('cAddrF').value.trim();
+  const addr = buildAddr();
   const obs = $('cObsF').value.trim();
   const phone = $('cPhoneF').value.trim().replace(/\D/g,'');
   const change = $('cChangeF').value.trim();
