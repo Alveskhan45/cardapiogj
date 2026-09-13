@@ -333,9 +333,7 @@ async function confirmOrder() {
   confirmOrder.busy = true;
 
   if (state.config.blockWhenClosed && !isStoreOpen()) {
-    toast('⚠️ Estamos fechados agora — o envio do pedido será liberado no horário de funcionamento.');
-    confirmOrder.busy = false;
-    return;
+    toast('⚠️ Estamos fora do horário de funcionamento — você pode enviar o pedido mesmo assim; a loja confirma quando abrir.');
   }
 
   const name = $('cNameF').value.trim();
